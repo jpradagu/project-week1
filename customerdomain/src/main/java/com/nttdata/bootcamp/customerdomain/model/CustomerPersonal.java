@@ -3,7 +3,6 @@ package com.nttdata.bootcamp.customerdomain.model;
 import java.util.Date;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,7 +29,5 @@ public class CustomerPersonal {
 	@NotEmpty
 	private String email;
 	private String address;
-	@NotNull
-	private StatusType status;
 
 }

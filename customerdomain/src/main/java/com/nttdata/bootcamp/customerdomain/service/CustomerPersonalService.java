@@ -13,19 +13,22 @@ import reactor.core.publisher.Mono;
 public class CustomerPersonalService {
 
 	@Autowired
-	private CustomerPersonalRepository customerRepository;
+	private CustomerPersonalRepository personalRepository;
 	
 	public Flux<CustomerPersonal> findAll(){
-		return customerRepository.findAll();
+		return personalRepository.findAll();
 	}
 	
-	public Mono<CustomerPersonal> create(CustomerPersonal customer){
-		return customerRepository.save(customer);
+	public Mono<CustomerPersonal> findById(String id) {
+		return personalRepository.findById(id);
+	}
+
+	public Mono<CustomerPersonal> save(CustomerPersonal customer){
+		return personalRepository.save(customer);
 	}
 	
-	public Mono<CustomerPersonal> update(CustomerPersonal customer){
-		return customerRepository.save(customer);
+	public Mono<Void> delete(CustomerPersonal customer){
+		return personalRepository.delete(customer);
 	}
-	
 
 }

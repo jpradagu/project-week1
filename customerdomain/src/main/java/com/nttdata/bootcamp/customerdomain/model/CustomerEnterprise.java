@@ -5,8 +5,6 @@ import javax.validation.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 
 @Document(collection = "customerEnteprises")
@@ -21,6 +19,4 @@ public class CustomerEnterprise {
 	@NotEmpty
 	private String owner;
 	private String address;
-	@JsonIgnore
-	private StatusType status;
 }

@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
 import com.nttdata.bootcamp.customerdomain.model.CustomerEnterprise;
-import com.nttdata.bootcamp.customerdomain.model.StatusType;
 import com.nttdata.bootcamp.customerdomain.service.CustomerEnterpriseService;
 
 import reactor.core.publisher.Flux;
@@ -51,7 +50,7 @@ public class CustomerEnterpriseController {
 	public Mono<ResponseEntity<Map<String, Object>>> create(@Valid @RequestBody Mono<CustomerEnterprise> monoCustomer) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		return monoCustomer.flatMap(c -> {
-			c.setStatus(StatusType.ENABLED);
+			c.setId(null);
 			return enterpriseService.save(c).map(enterprise -> {
 				return ResponseEntity.created(URI.create("/api/account/enterprise/".concat(enterprise.getId())))
 						.contentType(MediaType.APPLICATION_JSON).body(result);
@@ -85,9 +84,8 @@ public class CustomerEnterpriseController {
 	
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id){
-		return enterpriseService.findById(id).flatMap(p ->{
-			p.setStatus(StatusType.DISABLED);
-			return enterpriseService.save(p).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
+		return enterpriseService.findById(id).flatMap(e ->{
+			return enterpriseService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
 		}).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
 	}
 }

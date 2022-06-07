@@ -1,0 +1,16 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: configserver
+  security:
+    user:
+      name: bootcampnttdada
+      password: nttdata2022w1
+  cloud:
+    config:
+      enabled: true
+      server:
+        git:
+          uri: https://github.com/jpradagu/config-repository
+          clone-on-start: true
