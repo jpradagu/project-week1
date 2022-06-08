@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum TypeAccountBank {
+public enum TypeAccountCredit {
 
-	SAVING_ACCOUNT, CHECKING_ACCOUNT, TIME_DEPOSIT_ACCOUNT;
+	PERSONAL_CREDIT, ENTERPRISE_CREDIT;
 }

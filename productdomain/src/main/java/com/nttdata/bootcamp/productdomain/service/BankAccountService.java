@@ -31,7 +31,7 @@ public class BankAccountService {
 	}
 
 	public Mono<BankAccount> save(BankAccount account) {
-		WebClient webClient = WebClient.create("http://localhost:8082");
+		WebClient webClient = WebClient.create("http://localhost:8080");
 		if (account.getCustomerType() == CustomerType.ENTERPRISE) {
 			return webClient.get()
 					.uri("/api/account/enterprise/{id}", Collections.singletonMap("id", account.getCustomerId()))

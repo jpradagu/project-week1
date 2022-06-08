@@ -1,4 +1,4 @@
-package com.nttdata.bootcamp.productdomain.model;
+package com.nttdata.bootcamp.transactiondomain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

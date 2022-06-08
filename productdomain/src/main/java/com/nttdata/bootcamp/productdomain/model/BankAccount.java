@@ -16,9 +16,10 @@ import lombok.Data;
 @Document(collection = "bankAccounts")
 @Data
 public class BankAccount {
-
 	@Id
 	private String id;
+	@NotNull
+	private TypeAccountBank typeAccountBank;
 	@NotNull
 	private CustomerType customerType;
 	@NotNull

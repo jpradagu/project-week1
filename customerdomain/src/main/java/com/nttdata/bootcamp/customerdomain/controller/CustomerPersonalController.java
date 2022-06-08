@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/account/personal")
+@RequestMapping("/api/customer/personal")
 public class CustomerPersonalController {
 
 	@Autowired
@@ -52,7 +52,7 @@ public class CustomerPersonalController {
 		return monoCustomer.flatMap(c -> {
 			c.setId(null);
 			return personalService.save(c).map(personal -> {
-				return ResponseEntity.created(URI.create("/api/account/personal/".concat(personal.getId())))
+				return ResponseEntity.created(URI.create("/api/customer/personal/".concat(personal.getId())))
 						.contentType(MediaType.APPLICATION_JSON).body(result);
 			});
 		}).onErrorResume(t -> {
