@@ -1,4 +1,4 @@
-package com.nttdata.bootcamp.customerdomain.controller;
+package com.nttdata.bootcamp.productdomain.controller;
 
 import java.net.URI;
 import java.util.Date;
@@ -21,42 +21,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import com.nttdata.bootcamp.customerdomain.model.CustomerEnterprise;
-import com.nttdata.bootcamp.customerdomain.service.CustomerEnterpriseService;
+import com.nttdata.bootcamp.productdomain.model.BankAccount;
+import com.nttdata.bootcamp.productdomain.service.BankAccountService;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/account/enterprise")
-public class CustomerEnterpriseController {
+@RequestMapping("/api/bank-account")
+public class BankAccountController {
 
 	@Autowired
-	private CustomerEnterpriseService enterpriseService;
-
+	private BankAccountService accountService;
+	
 	@GetMapping
-	public Mono<ResponseEntity<Flux<CustomerEnterprise>>> findAll() {
-		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(enterpriseService.findAll()));
+	public Mono<ResponseEntity<Flux<BankAccount>>> findAll() {
+		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(accountService.findAll()));
 	}
-
+	
 	@GetMapping("/{id}")
-	public Mono<ResponseEntity<CustomerEnterprise>> findById(@PathVariable String id) {
-		return enterpriseService.findById(id)
+	public Mono<ResponseEntity<BankAccount>> findById(@PathVariable String id) {
+		return accountService.findById(id)
 				.map(ce -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ce))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
-
+	
 	@PostMapping
-	public Mono<ResponseEntity<Map<String, Object>>> create(@Valid @RequestBody Mono<CustomerEnterprise> monoCustomer) {
+	public Mono<ResponseEntity<Map<String, Object>>> create(@Valid @RequestBody Mono<BankAccount> monoAccount) {
 		Map<String, Object> result = new HashMap<String, Object>();
-		return monoCustomer.flatMap(c -> {
-			c.setId(null);
-			return enterpriseService.save(c).map(enterprise -> {
-				return ResponseEntity.created(URI.create("/api/account/enterprise/".concat(enterprise.getId())))
+		return monoAccount.flatMap(a -> {
+			a.setId(null);
+			return accountService.save(a).map(account -> {
+				return ResponseEntity.created(URI.create("/api/bank-account/".concat(account.getId())))
 						.contentType(MediaType.APPLICATION_JSON).body(result);
 			});
 		}).onErrorResume(t -> {
-			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
+			return Mono.just(t).cast(WebExchangeBindException.class)
+					.flatMap(e -> Mono.just(e.getFieldErrors()))
 					.flatMapMany(Flux::fromIterable)
 					.map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
 					.collectList().flatMap(list -> {
@@ -67,11 +68,11 @@ public class CustomerEnterpriseController {
 					});
 		});
 	}
-
+	
 	@PutMapping("/{id}")
-	public Mono<ResponseEntity<CustomerEnterprise>> update(@RequestBody CustomerEnterprise enterprise, @PathVariable String id){
-		return enterpriseService.findById(id).flatMap(c->{
-		return enterpriseService.save(c);
+	public Mono<ResponseEntity<BankAccount>> update(@RequestBody BankAccount account, @PathVariable String id){
+		return accountService.findById(id).flatMap(c->{
+		return accountService.save(c);
 		}).map(p->ResponseEntity.ok()
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(p))
@@ -80,8 +81,8 @@ public class CustomerEnterpriseController {
 	
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id){
-		return enterpriseService.findById(id).flatMap(e ->{
-			return enterpriseService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
+		return accountService.findById(id).flatMap(e ->{
+			return accountService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
 		}).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
 	}
 }

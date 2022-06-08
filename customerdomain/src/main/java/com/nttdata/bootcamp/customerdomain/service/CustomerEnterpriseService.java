@@ -23,11 +23,12 @@ public class CustomerEnterpriseService {
 		return enterpriseRepository.findById(id);
 	}
 
-	public Mono<CustomerEnterprise> save(CustomerEnterprise customer)  {
+	public Mono<CustomerEnterprise> save(CustomerEnterprise customer) {
+
 		return enterpriseRepository.save(customer);
 	}
 
-	public Mono<Void> delete(CustomerEnterprise customer)  {
+	public Mono<Void> delete(CustomerEnterprise customer) {
 		return enterpriseRepository.delete(customer);
 	}
 }
