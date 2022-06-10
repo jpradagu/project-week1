@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/bank-loan")
+@RequestMapping("/api/product/bank-loan")
 public class BankLoanController {
 
 	@Autowired
@@ -52,7 +52,7 @@ public class BankLoanController {
 		return monoAccount.flatMap(a -> {
 			a.setId(null);
 			return loanService.save(a).map(account -> {
-				return ResponseEntity.created(URI.create("/api/bank-loan/".concat(account.getId())))
+				return ResponseEntity.created(URI.create("/api/product/bank-loan/".concat(account.getId())))
 						.contentType(MediaType.APPLICATION_JSON).body(result);
 			});
 		}).onErrorResume(t -> {

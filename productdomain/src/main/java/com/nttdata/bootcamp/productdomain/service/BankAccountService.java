@@ -19,38 +19,46 @@ import reactor.core.publisher.Mono;
 @Service
 public class BankAccountService {
 
-	@Autowired
-	private BankAccountRepository accountRepository;
+    @Autowired
+    private BankAccountRepository accountRepository;
 
-	public Flux<BankAccount> findAll() {
-		return accountRepository.findAll();
-	}
+    @Autowired
+    private WebClient webClient;
 
-	public Mono<BankAccount> findById(String id) {
-		return accountRepository.findById(id);
-	}
+    public Flux<BankAccount> findAll() {
+        return accountRepository.findAll();
+    }
 
-	public Mono<BankAccount> save(BankAccount account) {
-		WebClient webClient = WebClient.create("http://localhost:8080");
-		if (account.getCustomerType() == CustomerType.ENTERPRISE) {
-			return webClient.get()
-					.uri("/api/account/enterprise/{id}", Collections.singletonMap("id", account.getCustomerId()))
-					.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerEnterprise.class).flatMap(e -> {
-						account.setCustomer(e);
-						return accountRepository.save(account);
-					});
-		} else {
-			return webClient.get()
-					.uri("/api/account/personal/{id}", Collections.singletonMap("id", account.getCustomerId()))
-					.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerPersonal.class).flatMap(p -> {
-						account.setCustomer(p);
-						return accountRepository.save(account);
-					});
-		}
+    public Mono<BankAccount> findById(String id) {
+        return accountRepository.findById(id);
+    }
 
-	}
+    public Mono<BankAccount> save(BankAccount account) {
+        if (account.getCustomerType() == CustomerType.ENTERPRISE) {
+            return webClient.get()
+                    .uri("/api/customer/enterprise/{id}", Collections.singletonMap("id", account.getCustomerId()))
+                    .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerEnterprise.class).flatMap(e -> {
+                        account.setCustomer(e);
+                        return accountRepository.save(account);
+                    });
+        } else {
+            return webClient.get()
+                    .uri("/api/customer/personal/{id}", Collections.singletonMap("id", account.getCustomerId()))
+                    .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerPersonal.class).flatMap(p -> {
+                        account.setCustomer(p);
+                        return accountRepository.save(account);
+                    });
+        }
 
-	public Mono<Void> delete(BankAccount customer) {
-		return accountRepository.delete(customer);
-	}
+    }
+
+    public Mono<Void> delete(BankAccount customer) {
+        return accountRepository.delete(customer);
+    }
+
+    public Flux<BankAccount> findAllByCustomer(String id) {
+        return webClient.get().uri("/api/customer/enterprise/{id}", Collections.singletonMap("id", id))
+                .accept(MediaType.APPLICATION_JSON).retrieve().bodyToFlux(CustomerEnterprise.class)
+                .flatMap(p -> accountRepository.findAllByCustomerIdAndCustomerType(p.getId(), CustomerType.ENTERPRISE));
+    }
 }

@@ -48,24 +48,20 @@ public class CustomerPersonalController {
 	
 	@PostMapping
 	public Mono<ResponseEntity<Map<String, Object>>> create(@Valid @RequestBody Mono<CustomerPersonal> monoCustomer) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		return monoCustomer.flatMap(c -> {
 			c.setId(null);
-			return personalService.save(c).map(personal -> {
-				return ResponseEntity.created(URI.create("/api/customer/personal/".concat(personal.getId())))
-						.contentType(MediaType.APPLICATION_JSON).body(result);
-			});
-		}).onErrorResume(t -> {
-			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
-					.flatMapMany(Flux::fromIterable)
-					.map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
-					.collectList().flatMap(list -> {
-						result.put("errors", list);
-						result.put("timestamp", new Date());
-						result.put("status", HttpStatus.BAD_REQUEST.value());
-						return Mono.just(ResponseEntity.badRequest().body(result));
-					});
-		});
+			return personalService.save(c).map(personal -> ResponseEntity.created(URI.create("/api/customer/personal/".concat(personal.getId())))
+					.contentType(MediaType.APPLICATION_JSON).body(result));
+		}).onErrorResume(t -> Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
+				.flatMapMany(Flux::fromIterable)
+				.map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
+				.collectList().flatMap(list -> {
+					result.put("errors", list);
+					result.put("timestamp", new Date());
+					result.put("status", HttpStatus.BAD_REQUEST.value());
+					return Mono.just(ResponseEntity.badRequest().body(result));
+				}));
 	}
 	
 	@PutMapping("/{id}")
@@ -87,8 +83,6 @@ public class CustomerPersonalController {
 	
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id){
-		return personalService.findById(id).flatMap(p ->{
-			return personalService.delete(p).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
-		}).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
+		return personalService.findById(id).flatMap(p -> personalService.delete(p).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 }

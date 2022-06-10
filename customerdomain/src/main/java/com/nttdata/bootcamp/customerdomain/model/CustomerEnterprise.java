@@ -1,5 +1,7 @@
 package com.nttdata.bootcamp.customerdomain.model;
 
+import java.util.List;
+
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.data.annotation.Id;
