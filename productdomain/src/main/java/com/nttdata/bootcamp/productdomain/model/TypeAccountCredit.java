@@ -6,6 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum TypeAccountCredit {
-
-	PERSONAL_CREDIT, ENTERPRISE_CREDIT;
+	PERSONAL_CREDIT, ENTERPRISE_CREDIT
 }

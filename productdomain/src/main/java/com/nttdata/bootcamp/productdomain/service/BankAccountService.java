@@ -23,7 +23,7 @@ public class BankAccountService {
     private BankAccountRepository accountRepository;
 
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClient;
 
     public Flux<BankAccount> findAll() {
         return accountRepository.findAll();
@@ -35,15 +35,15 @@ public class BankAccountService {
 
     public Mono<BankAccount> save(BankAccount account) {
         if (account.getCustomerType() == CustomerType.ENTERPRISE) {
-            return webClient.get()
-                    .uri("/api/customer/enterprise/{id}", Collections.singletonMap("id", account.getCustomerId()))
+            return webClient.build().get()
+                    .uri("http://customerdomain/api/customer/enterprise/{id}", Collections.singletonMap("id", account.getCustomerId()))
                     .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerEnterprise.class).flatMap(e -> {
                         account.setCustomer(e);
                         return accountRepository.save(account);
                     });
         } else {
-            return webClient.get()
-                    .uri("/api/customer/personal/{id}", Collections.singletonMap("id", account.getCustomerId()))
+            return webClient.build().get()
+                    .uri("http://customerdomain/api/customer/personal/{id}", Collections.singletonMap("id", account.getCustomerId()))
                     .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(CustomerPersonal.class).flatMap(p -> {
                         account.setCustomer(p);
                         return accountRepository.save(account);
@@ -57,7 +57,7 @@ public class BankAccountService {
     }
 
     public Flux<BankAccount> findAllByCustomer(String id) {
-        return webClient.get().uri("/api/customer/enterprise/{id}", Collections.singletonMap("id", id))
+        return webClient.build().get().uri("http://customerdomain/api/customer/enterprise/{id}", Collections.singletonMap("id", id))
                 .accept(MediaType.APPLICATION_JSON).retrieve().bodyToFlux(CustomerEnterprise.class)
                 .flatMap(p -> accountRepository.findAllByCustomerIdAndCustomerType(p.getId(), CustomerType.ENTERPRISE));
     }

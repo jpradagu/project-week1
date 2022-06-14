@@ -52,7 +52,8 @@ public class BankAccountController {
         return monoAccount.flatMap(a -> {
             a.setId(null);
             return accountService.save(a)
-                    .map(account -> ResponseEntity.created(URI.create("/api/product/bank-account/".concat(account.getId())))
+                    .map(account -> ResponseEntity
+                            .created(URI.create("/api/product/bank-account/".concat(account.getId())))
                             .contentType(MediaType.APPLICATION_JSON).body(result));
         }).onErrorResume(t -> Mono.just(t).cast(WebExchangeBindException.class)
                 .flatMap(e -> Mono.just(e.getFieldErrors()))
@@ -76,23 +77,20 @@ public class BankAccountController {
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id) {
-        return accountService.findById(id).flatMap(e -> {
-            return accountService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
-        }).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
+        return accountService.findById(id).flatMap(e -> accountService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 
     @GetMapping("/customer/{id}")
     public Mono<ResponseEntity<Flux<BankAccount>>> findAllByCustomer(String id) {
-        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(accountService.findAllByCustomer(id))).onErrorResume(t -> {
-            return Mono.just(t).cast(WebExchangeBindException.class)
-                    .flatMap(e -> Mono.just(e.getFieldErrors()))
-                    .flatMapMany(Flux::fromIterable)
-                    .map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
-                    .collectList().flatMap(list -> {
-                        return Mono.just(ResponseEntity.badRequest().body(null));
-                    });
-        });
+        return Mono.just(ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(accountService.findAllByCustomer(id)))
+                .onErrorResume(t -> Mono.just(t).cast(WebExchangeBindException.class)
+                .flatMap(e -> Mono.just(e.getFieldErrors()))
+                .flatMapMany(Flux::fromIterable)
+                .map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
+                .collectList().flatMap(list -> Mono.just(ResponseEntity.badRequest().body(null))));
     }
 
 }

@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum CustomerType {
-	PERSONAL, ENTERPRISE;
+	PERSONAL, ENTERPRISE
 }
