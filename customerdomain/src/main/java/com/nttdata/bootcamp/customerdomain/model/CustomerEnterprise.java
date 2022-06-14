@@ -21,4 +21,5 @@ public class CustomerEnterprise {
 	@NotEmpty
 	private String owner;
 	private String address;
+	private List<BankAccount> bankAccounts;
 }

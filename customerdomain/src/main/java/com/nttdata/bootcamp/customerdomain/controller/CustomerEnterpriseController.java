@@ -77,4 +77,12 @@ public class CustomerEnterpriseController {
 	}
 
 	
+	@GetMapping("/{id}/bank-account")
+	public Mono<ResponseEntity<CustomerEnterprise>> findAllBankAccountById(@PathVariable String id) {
+		return enterpriseService.findAllBankAccountByCustomerId(id)
+				.map(ce -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ce))
+				.defaultIfEmpty(ResponseEntity.notFound().build());
+	}
+	
+	
 }
