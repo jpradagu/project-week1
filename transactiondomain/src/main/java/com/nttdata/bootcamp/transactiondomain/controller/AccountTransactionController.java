@@ -48,39 +48,31 @@ public class AccountTransactionController {
 
 	@PostMapping
 	public Mono<ResponseEntity<Map<String, Object>>> create(@Valid @RequestBody Mono<AccountTransaction> monoAccount) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		return monoAccount.flatMap(a -> {
 			a.setId(null);
-			return transactionService.save(a).map(account -> {
-				return ResponseEntity.created(URI.create("/api/account-transaction/".concat(account.getId())))
-						.contentType(MediaType.APPLICATION_JSON).body(result);
-			});
-		}).onErrorResume(t -> {
-			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
-					.flatMapMany(Flux::fromIterable)
-					.map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
-					.collectList().flatMap(list -> {
-						result.put("errors", list);
-						result.put("timestamp", new Date());
-						result.put("status", HttpStatus.BAD_REQUEST.value());
-						return Mono.just(ResponseEntity.badRequest().body(result));
-					});
-		});
+			return transactionService.save(a).map(account -> ResponseEntity.created(URI.create("/api/account-transaction/".concat(account.getId())))
+					.contentType(MediaType.APPLICATION_JSON).body(result));
+		}).onErrorResume(t -> Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
+				.flatMapMany(Flux::fromIterable)
+				.map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
+				.collectList().flatMap(list -> {
+					result.put("errors", list);
+					result.put("timestamp", new Date());
+					result.put("status", HttpStatus.BAD_REQUEST.value());
+					return Mono.just(ResponseEntity.badRequest().body(result));
+				}));
 	}
 
 	@PutMapping("/{id}")
 	public Mono<ResponseEntity<AccountTransaction>> update(@RequestBody AccountTransaction account, @PathVariable String id) {
-		return transactionService.findById(id).flatMap(c -> {
-			return transactionService.save(c);
-		}).map(p -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(p))
+		return transactionService.findById(id).flatMap(c -> transactionService.save(c)).map(p -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(p))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id) {
-		return transactionService.findById(id).flatMap(e -> {
-			return transactionService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
-		}).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
+		return transactionService.findById(id).flatMap(e -> transactionService.delete(e).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 }

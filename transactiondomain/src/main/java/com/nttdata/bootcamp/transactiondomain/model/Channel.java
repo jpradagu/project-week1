@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Channel {
-	MOBILE, WEB,OFFICE;
+	MOBILE, WEB,OFFICE
 }

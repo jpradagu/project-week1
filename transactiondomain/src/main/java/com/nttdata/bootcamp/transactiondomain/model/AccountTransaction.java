@@ -15,6 +15,7 @@ public class AccountTransaction {
 	private String id;
 	private CustomerType customerType;
 	private String customerId;
+	private MovementType movementType;
 	private BigDecimal amount;
 	private Channel channel;
 	private String bankAccountId;
